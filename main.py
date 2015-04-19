@@ -337,10 +337,22 @@ def run():
         f.write( "\n"+summary )
         f.close()
 
+        sites_detected = []
+        sites_not_detected = []
         f = open( outputFilename+'.debug', 'a' )
         for entry in debugInfo:
+            if entry[0] == entry[1]:
+                sites_detected.append(entry[0])
+            else:
+                sites_not_detected.append(entry[0])
             f.write( entry[0]+','+entry[1]+"\n" )
         f.close()
+
+        # Print a report to user
+        print '[INFO] sites detected correctly:\t{}'.format(', '.join(sites_detected))
+        print '[INFO] sites detected incorrectly:\t{}'.format(', '.join(sites_not_detected))
+        print '[INFO] summary: {}'.format(summary)
+
 
 if __name__ == '__main__':
     run()
