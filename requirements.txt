@@ -1,0 +1,6 @@
+cvxopt
+mysql-python
+dpkt
+python-memcached
+python-Levenshtein
+statlib

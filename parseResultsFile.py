@@ -8,8 +8,6 @@ import config
 import glob
 import math
 
-if config.PYTHONPATH: sys.path.append(config.PYTHONPATH)
-
 from statlib import stats
 
 def parseResultsFile(filename):

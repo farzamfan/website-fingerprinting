@@ -9,17 +9,14 @@ from Packet import Packet
 # Set the following to a directory that contains
 # * weka-X-Y-Z (see WEKA_ROOT to change the weka version)
 # * pcap-logs (a diretory that contains all of the LL pcap files)
-# * [optional] (a directory that contains custom/local python modules)
-BASE_DIR        = ''
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Enviromental settings
 JVM_MEMORY_SIZE = '4192m'
 
-WEKA_ROOT          = os.path.join(BASE_DIR   ,'weka-3-7-5')
+WEKA_ROOT          = os.path.join(BASE_DIR, 'weka')
 WEKA_JAR           = os.path.join(WEKA_ROOT  ,'weka.jar')
 PCAP_ROOT          = os.path.join(BASE_DIR   ,'pcap-logs')
-PYTHON_ROOT        = os.path.join(BASE_DIR   ,'python2.4')
-PYTHONPATH         = os.path.join(PYTHON_ROOT,'lib/python')
 CACHE_DIR          = './cache'
 COUNTERMEASURE_DIR = './countermeasures'
 CLASSIFIERS_DIR    = './classifiers'
@@ -31,7 +28,6 @@ MYSQL_DB = 'fingerprints'
 MYSQL_USER = 'fingerprints'
 MYSQL_PASSWD = 'fingerprints'
 
-sys.path.append(PYTHONPATH)
 sys.path.append(COUNTERMEASURE_DIR)
 sys.path.append(CLASSIFIERS_DIR)
 
@@ -268,17 +264,11 @@ TIME_CLASSIFIER          = 10
 VNG_CLASSIFIER           = 14
 VNG_PLUS_PLUS_CLASSIFIER = 15
 
-### Sanity
+
 def sanity():
     if not os.path.exists(WEKA_JAR):
         print 'Weka does not exist in path: '+str(WEKA_JAR)
         print 'Please install Weka properly.'
-        #sys.exit()
-
-    if BASE_DIR == '':
-        print "!!!!"
-        print "Please open config.py and set your BASE_DIR."
-        #sys.exit()
+        sys.exit(1)
 
 sanity()
-###
