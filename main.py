@@ -239,17 +239,31 @@ def run():
         f = open( outputFilename+'.debug', 'w' )
         f.close()
 
+    dataset_size = 0
+    training_set_size = config.NUM_TRAINING_TRACES
+    testing_set_size = config.NUM_TESTING_TRACES
     if config.DATA_SOURCE == 0:
+        dataset_size = len(config.DATA_SET)
         startIndex = config.NUM_TRAINING_TRACES
         endIndex   = len(config.DATA_SET)-config.NUM_TESTING_TRACES
     elif config.DATA_SOURCE == 1:
+        dataset_size = 160
         maxTracesPerWebsiteH = 160
         startIndex = config.NUM_TRAINING_TRACES
         endIndex   = maxTracesPerWebsiteH-config.NUM_TESTING_TRACES
     elif config.DATA_SOURCE == 2:
+        dataset_size = 18
         maxTracesPerWebsiteH = 18
         startIndex = config.NUM_TRAINING_TRACES
         endIndex   = maxTracesPerWebsiteH-config.NUM_TESTING_TRACES
+
+    print '[INFO] |dataset|={}\t|training-set|={}, |testing-set|={}'.format(dataset_size, training_set_size, testing_set_size)
+    if training_set_size + testing_set_size > dataset_size:
+        print '[ERROR] t+T is larger than dataset size!'
+        print '\tThe dataset is devided into two parts: Training set (t) and Testing set (T), so t+T must be '
+        print '\tless than or equal to the total number of data in dataset.'
+        sys.exit(4)
+
 
     for i in range(config.NUM_TRIALS):
         startStart = time.time()
