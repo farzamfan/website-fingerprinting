@@ -15,16 +15,7 @@ import itertools
 from Datastore import Datastore
 from Webpage import Webpage
 
-# countermeasures
-from PadToMTU import PadToMTU
-from PadRFCFixed import PadRFCFixed
-from PadRFCRand import PadRFCRand
-from PadRand import PadRand
-from PadRoundExponential import PadRoundExponential
-from PadRoundLinear import PadRoundLinear
-from MiceElephants import MiceElephants
 from DirectTargetSampling import DirectTargetSampling
-from Folklore import Folklore
 from WrightStyleMorphing import WrightStyleMorphing
 
 # classifiers
@@ -38,77 +29,16 @@ from VNGPlusPlusClassifier import VNGPlusPlusClassifier
 from VNGClassifier import VNGClassifier
 from JaccardClassifier import JaccardClassifier
 from ESORICSClassifier import ESORICSClassifier
+from countermeasure import CounterMeasure
+
 
 def intToCountermeasure(n):
-    countermeasure = None
-    if n == config.PAD_TO_MTU:
-        countermeasure = PadToMTU
-    elif n == config.RFC_COMPLIANT_FIXED_PAD:
-        countermeasure = PadRFCFixed
-    elif n == config.RFC_COMPLIANT_RANDOM_PAD:
-        countermeasure = PadRFCRand
-    elif n == config.RANDOM_PAD:
-        countermeasure = PadRand
-    elif n == config.PAD_ROUND_EXPONENTIAL:
-        countermeasure = PadRoundExponential
-    elif n == config.PAD_ROUND_LINEAR:
-        countermeasure = PadRoundLinear
-    elif n == config.MICE_ELEPHANTS:
-        countermeasure = MiceElephants
-    elif n == config.DIRECT_TARGET_SAMPLING:
-        countermeasure = DirectTargetSampling
-    elif n == config.WRIGHT_STYLE_MORPHING:
-        countermeasure = WrightStyleMorphing
-    elif n > 10:
-        countermeasure = Folklore
+    try:
+        return config.available_countermeasures[n]
+    except KeyError:
+        print '[Error] Invalid countermeasure id: {}'.format(n)
+        sys.exit(3)
 
-        # FIXED_PACKET_LEN: 1000,1250,1500
-        if n in [11,12,13,14]:
-            Folklore.FIXED_PACKET_LEN    = 1000
-        elif n in [15,16,17,18]:
-            Folklore.FIXED_PACKET_LEN    = 1250
-        elif n in [19,20,21,22]:
-            Folklore.FIXED_PACKET_LEN    = 1500
-
-        if n in [11,12,13,17,18,19]:
-            Folklore.TIMER_CLOCK_SPEED   = 20
-        elif n in [14,15,16,20,21,22]:
-            Folklore.TIMER_CLOCK_SPEED   = 40
-
-        if n in [11,14,17,20]:
-            Folklore.MILLISECONDS_TO_RUN = 0
-        elif n in [12,15,18,21]:
-            Folklore.MILLISECONDS_TO_RUN = 5000
-        elif n in [13,16,19,22]:
-            Folklore.MILLISECONDS_TO_RUN = 10000
-
-        if n==23:
-            Folklore.MILLISECONDS_TO_RUN = 0
-            Folklore.FIXED_PACKET_LEN    = 1250
-            Folklore.TIMER_CLOCK_SPEED   = 40
-        elif n==24:
-            Folklore.MILLISECONDS_TO_RUN = 0
-            Folklore.FIXED_PACKET_LEN    = 1500
-            Folklore.TIMER_CLOCK_SPEED   = 20
-        elif n==25:
-            Folklore.MILLISECONDS_TO_RUN = 5000
-            Folklore.FIXED_PACKET_LEN    = 1000
-            Folklore.TIMER_CLOCK_SPEED   = 40
-        elif n==26:
-            Folklore.MILLISECONDS_TO_RUN = 5000
-            Folklore.FIXED_PACKET_LEN    = 1500
-            Folklore.TIMER_CLOCK_SPEED   = 20
-        elif n==27:
-            Folklore.MILLISECONDS_TO_RUN = 10000
-            Folklore.FIXED_PACKET_LEN    = 1000
-            Folklore.TIMER_CLOCK_SPEED   = 40
-        elif n==28:
-            Folklore.MILLISECONDS_TO_RUN = 10000
-            Folklore.FIXED_PACKET_LEN    = 1250
-            Folklore.TIMER_CLOCK_SPEED   = 20
-
-
-    return countermeasure
 
 def intToClassifier(n):
     classifier = None
@@ -163,7 +93,7 @@ def usage():
         (default 0)
 
     -c [int]: countermeasure to use
-        0: None
+        0: None (default)
         1: Pad to MTU
         2: Session Random 255
         3: Packet Random 255
@@ -173,20 +103,21 @@ def usage():
         7: Mice-Elephants Pad
         8: Direct Target Sampling
         9: Traffic Morphing
-        (default 0)
+        10: Tamaraw
 
-    -t [int]: number of trials to run per experiment (default 1)
+    -n [int]: number of trials to run per experiment (default 1)
 
     -t [int]: number of training traces to use per experiment (default 16)
 
     -T [int]: number of testing traces to use per experiment (default 4)
     """
 
+
 def run():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "t:T:N:k:c:C:d:n:r:h")
     except getopt.GetoptError, err:
-        print str(err) # will print something like "option -a not recognized"
+        print str(err)  # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
 
@@ -303,20 +234,25 @@ def run():
             preCountermeasureOverhead  += webpageTest.getBandwidth()
 
             metadata = None
-            if config.COUNTERMEASURE in [config.DIRECT_TARGET_SAMPLING, config.WRIGHT_STYLE_MORPHING]:
+            if countermeasure in [DirectTargetSampling, WrightStyleMorphing]:
                 metadata = countermeasure.buildMetadata( webpageTrain,  targetWebpage )
 
             i = 0
             for w in [webpageTrain, webpageTest]:
                 for trace in w.getTraces():
                     if countermeasure:
-                        if config.COUNTERMEASURE in [config.DIRECT_TARGET_SAMPLING, config.WRIGHT_STYLE_MORPHING]:
-                            if w.getId()!=targetWebpage.getId():
-                                traceWithCountermeasure = countermeasure.applyCountermeasure( trace,  metadata )
-                            else:
-                                traceWithCountermeasure = trace
+                        if isinstance(countermeasure, CounterMeasure):
+                            cm = countermeasure(trace=trace)
+                            cm.apply()
+                            traceWithCountermeasure = cm.get_new_trace()
                         else:
-                            traceWithCountermeasure = countermeasure.applyCountermeasure( trace )
+                            if countermeasure in [DirectTargetSampling, WrightStyleMorphing]:
+                                if w.getId()!=targetWebpage.getId():
+                                    traceWithCountermeasure = countermeasure.applyCountermeasure( trace,  metadata )
+                                else:
+                                    traceWithCountermeasure = trace
+                            else:
+                                traceWithCountermeasure = countermeasure.applyCountermeasure( trace )
                     else:
                         traceWithCountermeasure = trace
 

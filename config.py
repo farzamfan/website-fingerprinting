@@ -239,18 +239,32 @@ PACKET_RANGE2 = range(Packet.HEADER_LENGTH,Packet.MTU+1,4)
 
 # packet range (H)
 
-# Security Strategy Enum
-NONE                     = 0
-PAD_TO_MTU               = 1
-RFC_COMPLIANT_FIXED_PAD  = 2
-RFC_COMPLIANT_RANDOM_PAD = 3
-RANDOM_PAD               = 4
-PAD_ROUND_EXPONENTIAL    = 5
-PAD_ROUND_LINEAR         = 6
-MICE_ELEPHANTS           = 7
-DIRECT_TARGET_SAMPLING   = 8
-WRIGHT_STYLE_MORPHING    = 9
-FIXED_PAD                = 10
+
+# Countermeasures
+from PadToMTU import PadToMTU
+from PadRFCFixed import PadRFCFixed
+from PadRFCRand import PadRFCRand
+from PadRand import PadRand
+from PadRoundExponential import PadRoundExponential
+from PadRoundLinear import PadRoundLinear
+from MiceElephants import MiceElephants
+from DirectTargetSampling import DirectTargetSampling
+from WrightStyleMorphing import WrightStyleMorphing
+
+
+available_countermeasures = [
+    None,
+    PadToMTU,
+    PadRFCFixed,
+    PadRFCRand,
+    PadRand,
+    PadRoundExponential,
+    PadRoundLinear,
+    MiceElephants,
+    DirectTargetSampling,
+    WrightStyleMorphing,
+]
+
 
 # Classifier enum
 LIBERATORE_CLASSIFIER    = 0

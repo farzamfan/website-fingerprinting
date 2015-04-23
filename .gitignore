@@ -1,5 +1,8 @@
 .idea
-venv
 .*.swp
 *.pyc
+
+venv
 cache
+weka
+pcap-logs
