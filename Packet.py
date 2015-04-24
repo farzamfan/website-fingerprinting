@@ -28,6 +28,9 @@ class Packet:
         self.__time      = int(time)
         self.__length    = int(length)
 
+    def get_details(self):
+        return self.__direction, self.__time, self.__length
+
     def getDirection(self):
         return self.__direction
 
@@ -42,3 +45,19 @@ class Packet:
 
     def setTime(self, time):
         self.__time = int(time)
+
+    def alter_size(self, new_size):
+        packets = []
+        d, t, l = self.get_details()
+        if new_size >= self.__length:
+            # pad
+            np = Packet(d, t, new_size)
+            packets.append(np)
+            # TODO: if new_size>MTU
+        else:
+            # fragment
+            for i in range(l // new_size):
+                packets.append(Packet(d, t, new_size))
+            if l % new_size:
+                packets.append(Packet(d, t, l % new_size))
+        return packets

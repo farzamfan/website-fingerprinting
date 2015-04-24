@@ -57,6 +57,8 @@ class Trace:
 
         return self.__packetArray.append( packet )
 
+    add_packet = addPacket
+
     def getBandwidth( self, direction = None ):
         totalBandwidth = 0
         for packet in self.getPackets():
@@ -135,3 +137,10 @@ class Trace:
         bits = worstKey.split('-')
 
         return [int(bits[0]),int(bits[1])]
+
+    @classmethod
+    def create_from_array(cls, trace_id, a):
+        trace = cls(trace_id)
+        for d, t, l in a:
+            trace.addPacket(Packet(d, t, l))
+        return trace
