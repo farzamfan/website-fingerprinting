@@ -36,7 +36,7 @@ from countermeasure import CounterMeasure
 
 def intToCountermeasure(n):
     try:
-        return config.available_countermeasures[n]
+        return config.get_available_countermeasures()[n]
     except KeyError:
         print('[Error] Invalid countermeasure id: {}'.format(n))
         sys.exit(3)

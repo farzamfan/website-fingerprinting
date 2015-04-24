@@ -241,29 +241,31 @@ PACKET_RANGE2 = range(Packet.HEADER_LENGTH,Packet.MTU+1,4)
 
 
 # Countermeasures
-from PadToMTU import PadToMTU
-from PadRFCFixed import PadRFCFixed
-from PadRFCRand import PadRFCRand
-from PadRand import PadRand
-from PadRoundExponential import PadRoundExponential
-from PadRoundLinear import PadRoundLinear
-from MiceElephants import MiceElephants
-from DirectTargetSampling import DirectTargetSampling
-from WrightStyleMorphing import WrightStyleMorphing
+def get_available_countermeasures():
+    from PadToMTU import PadToMTU
+    from PadRFCFixed import PadRFCFixed
+    from PadRFCRand import PadRFCRand
+    from PadRand import PadRand
+    from PadRoundExponential import PadRoundExponential
+    from PadRoundLinear import PadRoundLinear
+    from MiceElephants import MiceElephants
+    from DirectTargetSampling import DirectTargetSampling
+    from WrightStyleMorphing import WrightStyleMorphing
+    from tamaraw import TamarawCounterMeasure
 
-
-available_countermeasures = [
-    None,
-    PadToMTU,
-    PadRFCFixed,
-    PadRFCRand,
-    PadRand,
-    PadRoundExponential,
-    PadRoundLinear,
-    MiceElephants,
-    DirectTargetSampling,
-    WrightStyleMorphing,
-]
+    return [
+        None,
+        PadToMTU,
+        PadRFCFixed,
+        PadRFCRand,
+        PadRand,
+        PadRoundExponential,
+        PadRoundLinear,
+        MiceElephants,
+        DirectTargetSampling,
+        WrightStyleMorphing,
+        TamarawCounterMeasure,
+    ]
 
 
 # Classifier enum
