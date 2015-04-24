@@ -216,8 +216,8 @@ def run():
 
     # Run
     for run_index in range(config.NUM_TRIALS):
-        startStart = time.time()
-        info('Run #{}'.format(run_index))
+        run_start_time = time.time()
+        print('Run #{}'.format(run_index))
 
         # Select a sample of size k from websites 1..N
         webpageIds = range(0, config.TOP_N - 1)
@@ -235,6 +235,7 @@ def run():
 
         for webpageId in webpageIds:
             print('.', end='')
+            sys.stdout.flush()
 
             # Sampling From Data-source
             if config.DATA_SOURCE == 0:
@@ -296,13 +297,16 @@ def run():
 
         # Classification
         print('')
-        startClass = time.time()
+        classification_start_time = time.time()
         [accuracy, debugInfo] = classifier.classify(runID, trainingSet, testingSet)
-        end = time.time()
+        run_end_time = time.time()
 
         # Write Output
         overhead = '{}/{}'.format(postCountermeasureOverhead, preCountermeasureOverhead)
-        output = [accuracy, overhead, '%.2f' % (end - startStart), '%.2f' % (end - startClass)]
+        overhead_ratio = ((postCountermeasureOverhead * 1.0 / preCountermeasureOverhead) - 1) * 100
+        run_total_time = run_end_time - run_start_time
+        classification_total_time = run_end_time - classification_start_time
+        output = [accuracy, overhead, '%.2f' % run_total_time, '%.2f' % classification_total_time]
         summary = ', '.join(itertools.imap(str, output))
         f = open(outputFilename + '.output', 'a')
         f.write('\n' + summary)
@@ -323,9 +327,9 @@ def run():
         # Show A Brief Report To User
         info('sites detected correctly:\t{}'.format(', '.join(sites_detected)))
         info('sites detected incorrectly:\t{}'.format(', '.join(sites_not_detected)))
-        info('summary: {}'.format(summary))
+        info('summary: {}%, {} bytes ({:.1f}%), {:.1f}s'.format(accuracy, overhead, overhead_ratio, run_total_time))
 
-        return 0
+    return 0
 
 
 if __name__ == '__main__':

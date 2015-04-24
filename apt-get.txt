@@ -1,0 +1,8 @@
+atlas
+atlas-devel
+memcached
+glpk
+libglpk-dev
+libdsdp-5.8gf
+libgsl0ldbl
+libf2c2-dev
