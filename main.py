@@ -230,6 +230,12 @@ def run():
         targetWebpage = None
 
         classifier = intToClassifier(config.CLASSIFIER)
+        countermeasure = intToCountermeasure(config.COUNTERMEASURE)
+        if issubclass(countermeasure, CounterMeasure):
+            countermeasure = countermeasure()   # also instantiating
+            new_style_cm = True
+        else:
+            new_style_cm = False
         preCountermeasureOverhead = 0
         postCountermeasureOverhead = 0
 
@@ -260,19 +266,17 @@ def run():
 
             # Train Countermeasure
             metadata = None
-            countermeasure = intToCountermeasure(config.COUNTERMEASURE)
-            if issubclass(countermeasure, CounterMeasure):
-                countermeasure = countermeasure()   # also instantiating
+            if new_style_cm:
                 countermeasure.train(src_page=webpageTrain, target_page=targetWebpage)
             else:
                 if countermeasure in [DirectTargetSampling, WrightStyleMorphing]:
-                    metadata = countermeasure.buildMetadata(webpageTrain,  targetWebpage)
+                    metadata = countermeasure.buildMetadata(webpageTrain, targetWebpage)
 
             # Applying Countermeasure (and feeding data to classifier)
             for i, w in enumerate([webpageTrain, webpageTest]):
                 for trace in w.getTraces():
                     if countermeasure:
-                        if isinstance(countermeasure, CounterMeasure):
+                        if new_style_cm:
                             traceWithCountermeasure = countermeasure.apply_to_trace(trace)
                         else:
                             if countermeasure in [DirectTargetSampling, WrightStyleMorphing]:
@@ -281,14 +285,14 @@ def run():
                                 else:
                                     traceWithCountermeasure = trace
                             else:
-
                                 traceWithCountermeasure = countermeasure.applyCountermeasure(trace)
                     else:
                         traceWithCountermeasure = trace
 
+                    # Overhead Accounging
                     postCountermeasureOverhead += traceWithCountermeasure.getBandwidth()
-                    instance = classifier.traceToInstance( traceWithCountermeasure )
 
+                    instance = classifier.traceToInstance( traceWithCountermeasure )
                     if instance:
                         if i == 0:     # train-page
                             trainingSet.append(instance)
