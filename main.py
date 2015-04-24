@@ -1,6 +1,11 @@
-# This is a Python framework to compliment "Peek-a-Boo, I Still See You: Why Efficient Traffic Analysis Countermeasures Fail".
-# Copyright (C) 2012  Kevin P. Dyer (kpdyer.com)
-# See LICENSE for more details.
+"""
+ This is a Python framework to compliment "Peek-a-Boo, I Still See You: Why
+    Efficient Traffic Analysis Countermeasures Fail".
+
+  Copyright (C) 2012  Kevin P. Dyer (http://kpdyer.com)
+  See LICENSE for more details.
+"""
+
 from __future__ import print_function
 
 import sys
@@ -13,8 +18,6 @@ import itertools
 
 import config
 
-
-# custom
 from Datastore import Datastore
 
 from DirectTargetSampling import DirectTargetSampling
@@ -34,7 +37,7 @@ from ESORICSClassifier import ESORICSClassifier
 from countermeasure import CounterMeasure
 
 
-def intToCountermeasure(n):
+def int_to_countermeasure(n):
     try:
         return config.get_available_countermeasures()[n]
     except KeyError:
@@ -42,7 +45,7 @@ def intToCountermeasure(n):
         sys.exit(3)
 
 
-def intToClassifier(n):
+def int_to_classifier(n):
     classifier = None
     if n == config.LIBERATORE_CLASSIFIER:
         classifier = LiberatoreClassifier
@@ -66,6 +69,7 @@ def intToClassifier(n):
         classifier = ESORICSClassifier
 
     return classifier
+
 
 def usage():
     print("""
@@ -136,72 +140,72 @@ def run():
         sys.exit(2)
 
     char_set = string.ascii_lowercase + string.digits
-    runID = ''.join(random.sample(char_set,8))
+    run_id = ''.join(random.sample(char_set, 8))
 
     for o, a in opts:
-        if o in ("-k"):
+        if o == "-k":
             config.BUCKET_SIZE = int(a)
-        elif o in ("-C"):
+        elif o == "-C":
             config.CLASSIFIER = int(a)
-        elif o in ("-d"):
+        elif o == "-d":
             config.DATA_SOURCE = int(a)
-        elif o in ("-c"):
+        elif o == "-c":
             config.COUNTERMEASURE = int(a)
-        elif o in ("-N"):
+        elif o == "-N":
             config.TOP_N = int(a)
-        elif o in ("-t"):
+        elif o == "-t":
             config.NUM_TRAINING_TRACES = int(a)
-        elif o in ("-T"):
+        elif o == "-T":
             config.NUM_TESTING_TRACES = int(a)
-        elif o in ("-n"):
+        elif o == "-n":
             config.NUM_TRIALS = int(a)
-        elif o in ("-r"):
-            runID = str(a)
+        elif o == "-r":
+            run_id = str(a)
         else:
             usage()
             sys.exit(2)
 
-    outputFilenameArray = ['results',
-                           'k'+str(config.BUCKET_SIZE),
-                           'c'+str(config.COUNTERMEASURE),
-                           'd'+str(config.DATA_SOURCE),
-                           'C'+str(config.CLASSIFIER),
-                           'N'+str(config.TOP_N),
-                           't'+str(config.NUM_TRAINING_TRACES),
-                           'T'+str(config.NUM_TESTING_TRACES),
-                          ]
-    outputFilename = os.path.join(config.OUTPUT_DIR,'.'.join(outputFilenameArray))
+    output_filename_list = [
+        'results',
+        'k' + str(config.BUCKET_SIZE),
+        'c' + str(config.COUNTERMEASURE),
+        'd' + str(config.DATA_SOURCE),
+        'C' + str(config.CLASSIFIER),
+        'N' + str(config.TOP_N),
+        't' + str(config.NUM_TRAINING_TRACES),
+        'T' + str(config.NUM_TESTING_TRACES),
+    ]
+    output_filename = os.path.join(config.OUTPUT_DIR, '.'.join(output_filename_list))
 
     if not os.path.exists(config.CACHE_DIR):
         os.mkdir(config.CACHE_DIR)
 
-    if not os.path.exists(outputFilename+'.output'):
-        banner = ['accuracy','overhead','timeElapsedTotal','timeElapsedClassifier']
-        f = open( outputFilename+'.output', 'w' )
+    if not os.path.exists(output_filename + '.output'):
+        banner = ['accuracy', 'overhead', 'timeElapsedTotal', 'timeElapsedClassifier']
+        f = open(output_filename + '.output', 'w')
         f.write(','.join(banner))
         f.close()
-    if not os.path.exists(outputFilename+'.debug'):
-        f = open( outputFilename+'.debug', 'w' )
+    if not os.path.exists(output_filename + '.debug'):
+        f = open(output_filename + '.debug', 'w')
         f.close()
 
-    # Dataset Selection
-    dataset_size = 0
+    # Data-set Selection
     training_set_size = config.NUM_TRAINING_TRACES
     testing_set_size = config.NUM_TESTING_TRACES
     if config.DATA_SOURCE == 0:
         dataset_size = len(config.DATA_SET)
-        startIndex = config.NUM_TRAINING_TRACES
-        endIndex   = len(config.DATA_SET)-config.NUM_TESTING_TRACES
+        start_index = config.NUM_TRAINING_TRACES
+        end_index = len(config.DATA_SET) - config.NUM_TESTING_TRACES
     elif config.DATA_SOURCE == 1:
         dataset_size = 160
-        maxTracesPerWebsiteH = 160
-        startIndex = config.NUM_TRAINING_TRACES
-        endIndex   = maxTracesPerWebsiteH-config.NUM_TESTING_TRACES
+        max_traces_per_website_h = 160
+        start_index = config.NUM_TRAINING_TRACES
+        end_index = max_traces_per_website_h - config.NUM_TESTING_TRACES
     elif config.DATA_SOURCE == 2:
         dataset_size = 18
-        maxTracesPerWebsiteH = 18
-        startIndex = config.NUM_TRAINING_TRACES
-        endIndex   = maxTracesPerWebsiteH-config.NUM_TESTING_TRACES
+        max_traces_per_website_h = 18
+        start_index = config.NUM_TRAINING_TRACES
+        end_index = max_traces_per_website_h - config.NUM_TESTING_TRACES
     else:
         error('Invalid data-source id:', config.DATA_SOURCE)
         return 3
@@ -209,9 +213,9 @@ def run():
     # Checking Training-set and Test-set Sizes
     info('|dataset|={}\t|training-set|={}, |testing-set|={}'.format(dataset_size, training_set_size, testing_set_size))
     if training_set_size + testing_set_size > dataset_size:
-        print('[ERROR] t+T is larger than dataset size!')
-        print('\tThe dataset is devided into two parts: Training set (t) and Testing set (T), so t+T must be ')
-        print('\tless than or equal to the total number of data in dataset.')
+        print('[ERROR] t+T is larger than data-set size!')
+        print('\tThe data-set is divided into two parts: Training set (t) and Testing set (T), so t+T must be ')
+        print('\tless than or equal to the total number of data in data-set.')
         sys.exit(4)
 
     # Run
@@ -220,107 +224,107 @@ def run():
         print('Run #{}'.format(run_index))
 
         # Select a sample of size k from websites 1..N
-        webpageIds = range(0, config.TOP_N - 1)
-        random.shuffle(webpageIds)
-        webpageIds = webpageIds[0:config.BUCKET_SIZE]
-        seed = random.randint(startIndex, endIndex)
+        webpage_ids = range(0, config.TOP_N - 1)
+        random.shuffle(webpage_ids)
+        webpage_ids = webpage_ids[0:config.BUCKET_SIZE]
+        seed = random.randint(start_index, end_index)
 
-        trainingSet = []
-        testingSet = []
-        targetWebpage = None
+        training_set = []
+        testing_set = []
+        target_webpage = None
 
-        classifier = intToClassifier(config.CLASSIFIER)
-        countermeasure = intToCountermeasure(config.COUNTERMEASURE)
+        classifier = int_to_classifier(config.CLASSIFIER)
+        countermeasure = int_to_countermeasure(config.COUNTERMEASURE)
         if issubclass(countermeasure, CounterMeasure):
-            countermeasure = countermeasure()   # also instantiating
+            countermeasure = countermeasure()  # also instantiating
             new_style_cm = True
         else:
             new_style_cm = False
-        preCountermeasureOverhead = 0
-        postCountermeasureOverhead = 0
+        actual_bandwidth = 0
+        modified_bandwidth = 0
 
-        for webpageId in webpageIds:
+        for page_id in webpage_ids:
             print('.', end='')
             sys.stdout.flush()
 
             # Sampling From Data-source
             if config.DATA_SOURCE == 0:
-                webpageTrain = Datastore.getWebpagesLL( [webpageId], seed-config.NUM_TRAINING_TRACES, seed )
-                webpageTest = Datastore.getWebpagesLL( [webpageId], seed, seed+config.NUM_TESTING_TRACES )
+                webpage_train = Datastore.getWebpagesLL([page_id], seed - config.NUM_TRAINING_TRACES, seed)
+                webpage_test = Datastore.getWebpagesLL([page_id], seed, seed + config.NUM_TESTING_TRACES)
             elif config.DATA_SOURCE in [1, 2]:
-                webpageTrain = Datastore.getWebpagesHerrmann( [webpageId], seed-config.NUM_TRAINING_TRACES, seed )
-                webpageTest = Datastore.getWebpagesHerrmann( [webpageId], seed, seed+config.NUM_TESTING_TRACES )
+                webpage_train = Datastore.getWebpagesHerrmann([page_id], seed - config.NUM_TRAINING_TRACES, seed)
+                webpage_test = Datastore.getWebpagesHerrmann([page_id], seed, seed + config.NUM_TESTING_TRACES)
             else:
-                error('Invalid datasource id:', config.DATA_SOURCE)
+                error('Invalid data-source id:', config.DATA_SOURCE)
                 return 3
 
             # Selecting Targets
-            webpageTrain = webpageTrain[0]
-            webpageTest = webpageTest[0]
-            if targetWebpage is None:
-                targetWebpage = webpageTrain
+            webpage_train = webpage_train[0]
+            webpage_test = webpage_test[0]
+            if target_webpage is None:
+                target_webpage = webpage_train
 
             # Accounting
-            preCountermeasureOverhead += webpageTrain.getBandwidth()
-            preCountermeasureOverhead += webpageTest.getBandwidth()
+            actual_bandwidth += webpage_train.getBandwidth()
+            actual_bandwidth += webpage_test.getBandwidth()
 
             # Train Countermeasure
             metadata = None
             if new_style_cm:
-                countermeasure.train(src_page=webpageTrain, target_page=targetWebpage)
+                countermeasure.train(src_page=webpage_train, target_page=target_webpage)
             else:
                 if countermeasure in [DirectTargetSampling, WrightStyleMorphing]:
-                    metadata = countermeasure.buildMetadata(webpageTrain, targetWebpage)
+                    metadata = countermeasure.buildMetadata(webpage_train, target_webpage)
 
             # Applying Countermeasure (and feeding data to classifier)
-            for i, w in enumerate([webpageTrain, webpageTest]):
+            for i, w in enumerate([webpage_train, webpage_test]):
                 for trace in w.getTraces():
                     if countermeasure:
                         if new_style_cm:
-                            traceWithCountermeasure = countermeasure.apply_to_trace(trace)
+                            modified_trace = countermeasure.apply_to_trace(trace)
                         else:
                             if countermeasure in [DirectTargetSampling, WrightStyleMorphing]:
-                                if w.getId() != targetWebpage.getId():
-                                    traceWithCountermeasure = countermeasure.applyCountermeasure(trace,  metadata)
+                                if w.getId() != target_webpage.getId():
+                                    modified_trace = countermeasure.applyCountermeasure(trace, metadata)
                                 else:
-                                    traceWithCountermeasure = trace
+                                    modified_trace = trace
                             else:
-                                traceWithCountermeasure = countermeasure.applyCountermeasure(trace)
+                                modified_trace = countermeasure.applyCountermeasure(trace)
                     else:
-                        traceWithCountermeasure = trace
+                        modified_trace = trace
 
-                    # Overhead Accounging
-                    postCountermeasureOverhead += traceWithCountermeasure.getBandwidth()
+                    # Overhead Accounting
+                    modified_bandwidth += modified_trace.getBandwidth()
 
-                    instance = classifier.traceToInstance( traceWithCountermeasure )
+                    instance = classifier.traceToInstance(modified_trace)
                     if instance:
-                        if i == 0:     # train-page
-                            trainingSet.append(instance)
-                        elif i == 1:   # test-page
-                            testingSet.append(instance)
+                        if i == 0:  # train-page
+                            training_set.append(instance)
+                        elif i == 1:  # test-page
+                            testing_set.append(instance)
 
         # Classification
         print('')
         classification_start_time = time.time()
-        [accuracy, debugInfo] = classifier.classify(runID, trainingSet, testingSet)
+        [accuracy, debug_info] = classifier.classify(run_id, training_set, testing_set)
         run_end_time = time.time()
 
         # Write Output
-        overhead = '{}/{}'.format(postCountermeasureOverhead, preCountermeasureOverhead)
-        overhead_ratio = ((postCountermeasureOverhead * 1.0 / preCountermeasureOverhead) - 1) * 100
+        overhead = '{}/{}'.format(modified_bandwidth, actual_bandwidth)
+        overhead_ratio = ((modified_bandwidth * 1.0 / actual_bandwidth) - 1) * 100
         run_total_time = run_end_time - run_start_time
         classification_total_time = run_end_time - classification_start_time
         output = [accuracy, overhead, '%.2f' % run_total_time, '%.2f' % classification_total_time]
         summary = ', '.join(itertools.imap(str, output))
-        f = open(outputFilename + '.output', 'a')
+        f = open(output_filename + '.output', 'a')
         f.write('\n' + summary)
         f.close()
 
         # Processing Classification Results For Each Page
         sites_detected = []
         sites_not_detected = []
-        f = open(outputFilename + '.debug', 'a')
-        for entry in debugInfo:
+        f = open(output_filename + '.debug', 'a')
+        for entry in debug_info:
             if entry[0] == entry[1]:
                 sites_detected.append(entry[0])
             else:
