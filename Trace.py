@@ -25,11 +25,16 @@ class Trace:
     def getPacketCount( self, direction = None ):
         return len(self.getPackets(direction))
 
-    def getPackets( self, direction = None ):
+    def getPackets(self, direction=None):
+        """ Return all packets of this trace
+
+            :param int or None direction: if given, filters packets by direction (UP/DOWN)
+            :rtype: list of Packet
+        """
         retArray = []
         for packet in self.__packetArray:
-            if direction == None or packet.getDirection() == direction:
-                retArray.append( packet )
+            if direction is None or packet.getDirection() == direction:
+                retArray.append(packet)
         return retArray
 
     def addPacket( self, packet ):

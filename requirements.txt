@@ -1,6 +1,7 @@
 cvxopt
 mysql-python
-dpkt
 python-memcached
 python-Levenshtein
+dpkt
+glpk
 statlib
