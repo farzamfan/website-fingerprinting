@@ -252,6 +252,7 @@ def get_available_countermeasures():
     from DirectTargetSampling import DirectTargetSampling
     from WrightStyleMorphing import WrightStyleMorphing
     from tamaraw import TamarawCounterMeasure
+    from buflo import BufloCounterMeasure
 
     return [
         None,
@@ -264,6 +265,7 @@ def get_available_countermeasures():
         MiceElephants,
         DirectTargetSampling,
         WrightStyleMorphing,
+        BufloCounterMeasure,
         TamarawCounterMeasure,
     ]
 

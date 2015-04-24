@@ -105,7 +105,8 @@ def usage():
         7: Mice-Elephants Pad
         8: Direct Target Sampling
         9: Traffic Morphing
-        10: Tamaraw
+        10: BuFLO
+        11: Tamaraw
 
     -n [int]: number of trials to run per experiment (default 1)
 
@@ -229,11 +230,12 @@ def run():
         targetWebpage = None
 
         classifier = intToClassifier(config.CLASSIFIER)
-        countermeasure = intToCountermeasure(config.COUNTERMEASURE)
         preCountermeasureOverhead = 0
         postCountermeasureOverhead = 0
 
         for webpageId in webpageIds:
+            print('.', end='')
+
             # Sampling From Data-source
             if config.DATA_SOURCE == 0:
                 webpageTrain = Datastore.getWebpagesLL( [webpageId], seed-config.NUM_TRAINING_TRACES, seed )
@@ -257,6 +259,7 @@ def run():
 
             # Train Countermeasure
             metadata = None
+            countermeasure = intToCountermeasure(config.COUNTERMEASURE)
             if issubclass(countermeasure, CounterMeasure):
                 countermeasure = countermeasure()   # also instantiating
                 countermeasure.train(src_page=webpageTrain, target_page=targetWebpage)
@@ -292,6 +295,7 @@ def run():
                             testingSet.append(instance)
 
         # Classification
+        print('')
         startClass = time.time()
         [accuracy, debugInfo] = classifier.classify(runID, trainingSet, testingSet)
         end = time.time()

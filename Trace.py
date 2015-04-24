@@ -59,6 +59,9 @@ class Trace:
 
     add_packet = addPacket
 
+    def get_packet_count(self):
+        return len(self.__packetArray)
+
     def getBandwidth( self, direction = None ):
         totalBandwidth = 0
         for packet in self.getPackets():
