@@ -133,7 +133,7 @@ def error(*args, **kwargs):
 
 def run():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:T:N:k:c:C:d:n:r:h")
+        opts, args = getopt.getopt(sys.argv[1:], "t:T:N:k:c:C:d:n:r:h:p:P")
     except getopt.GetoptError, err:
         print(str(err))  # will print something like "option -a not recognized"
         usage()
@@ -141,6 +141,8 @@ def run():
 
     char_set = string.ascii_lowercase + string.digits
     run_id = ''.join(random.sample(char_set, 8))
+    countermeasure_params = ''
+    classifier_params = ''
 
     for o, a in opts:
         if o == "-k":
@@ -161,6 +163,10 @@ def run():
             config.NUM_TRIALS = int(a)
         elif o == "-r":
             run_id = str(a)
+        elif o == "-P":
+            classifier_params = str(a)
+        elif o == "-p":
+            countermeasure_params = str(a)
         else:
             usage()
             sys.exit(2)
@@ -270,6 +276,17 @@ def run():
 
             # Train Countermeasure
             metadata = None
+            countermeasure_params = countermeasure_params.split(',')
+            for p in countermeasure_params:
+                try:
+                    attr, val = p.strip().split('=', 1)
+                except ValueError:
+                    error('Invalid parameter:', p)
+                    return 3
+                if new_style_cm:
+                    countermeasure.set_param(attr, val)
+                else:
+                    setattr(countermeasure, attr, val)
             if new_style_cm:
                 countermeasure.train(src_page=webpage_train, target_page=target_webpage)
             else:
