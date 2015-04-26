@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
+import copy
+
 from Trace import Trace
 
 
 class CounterMeasure(object):
-    def __init__(self):
+    DEFAULT_PARAMS = {}
+
+    def __init__(self, params=None):
         self.trace = None
         self.new_trace = None
         self.metadata = None
         self.model = None
+        self.params = copy.deepcopy(self.DEFAULT_PARAMS)
+        if params:
+            self.params.update(params)
+
+    def set_param(self, parameter, value):
+        self.params[parameter] = value
 
     def train(self, src_page=None, target_page=None):
         pass
@@ -24,7 +34,11 @@ class CounterMeasure(object):
         self.new_trace = Trace(self.trace.getId())
 
     def add_packet(self, packet):
-        self.new_trace.add_packet(packet)
+        t = packet.getTime()
+        ind = len(self.new_trace.packets)
+        while 0 < ind and t < self.new_trace.packets[ind - 1].getTime():
+            ind -= 1
+        self.new_trace.add_packet(packet, index=ind)
 
     def apply_to_trace(self, trace):
         self.trace = trace

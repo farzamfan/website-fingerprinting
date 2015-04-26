@@ -44,7 +44,11 @@ class Trace:
                 retArray.append(packet)
         return retArray
 
-    def addPacket(self, packet):
+    @property
+    def packets(self):
+        return self.__packetArray
+
+    def addPacket(self, packet, index=None):
         # Completely ignore ACK packets
         if config.IGNORE_ACK and packet.getLength() == Packet.HEADER_LENGTH:
             return self.__packetArray
@@ -62,7 +66,10 @@ class Trace:
                 self.__histogramDown[key] = 0
             self.__histogramDown[key] += 1
 
-        return self.__packetArray.append(packet)
+        if index is None:
+            return self.__packetArray.append(packet)
+        else:
+            return self.__packetArray.insert(index, packet)
 
     add_packet = addPacket
 
