@@ -13,9 +13,13 @@ IndexCalc <- function(Index)
             #print(temp)
             indices[i,k] <- temp[k]
             indices[i,k+1] <- temp[k+1]
-            print(indices)
+            #print(indices)
             k <- k+1
         }
     }
-    return(indices)
+    indices <- rbind(indices,c("max","max","max","min","min","-"))
+    return(as.data.frame(indices))
+    
+    #return(as.matrix(indices))
+    #print(indices[with(indices[-10,],order(indices$calinski_harabasz,indices$dunn,indices$silhouette,-as.numeric(indices$davies_bouldin))),])
 }
