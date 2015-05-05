@@ -246,6 +246,24 @@ def run():
             new_style_cm = True
         else:
             new_style_cm = False
+        countermeasure_params = countermeasure_params.split(',')
+        for p in countermeasure_params:
+            if not p or not p.strip():
+                continue
+            try:
+                attr, val = p.strip().split('=', 1)
+            except ValueError:
+                error('Invalid parameter:', p)
+                return 3
+            try:
+                val = int(val)
+            except ValueError:
+                pass
+            if new_style_cm:
+                countermeasure.set_param(attr, val)
+            else:
+                setattr(countermeasure, attr, val)
+
         actual_bandwidth = 0
         modified_bandwidth = 0
 
@@ -276,17 +294,6 @@ def run():
 
             # Train Countermeasure
             metadata = None
-            countermeasure_params = countermeasure_params.split(',')
-            for p in countermeasure_params:
-                try:
-                    attr, val = p.strip().split('=', 1)
-                except ValueError:
-                    error('Invalid parameter:', p)
-                    return 3
-                if new_style_cm:
-                    countermeasure.set_param(attr, val)
-                else:
-                    setattr(countermeasure, attr, val)
             if new_style_cm:
                 countermeasure.train(src_page=webpage_train, target_page=target_webpage)
             else:

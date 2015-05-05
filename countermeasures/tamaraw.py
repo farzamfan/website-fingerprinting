@@ -102,7 +102,6 @@ class Tamaraw(CounterMeasure):
                 timer_up += t_up
                 n_sent_up += pcu
 
-        print timer_down, timer_up
         while (timer_up // t_up) % L:
             # print 'PAD UP'
             self.add_packet(Packet(Packet.UP, timer_up, cell_size))
