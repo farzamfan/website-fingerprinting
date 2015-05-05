@@ -92,6 +92,9 @@ class Trace:
 
         return timeCursor
 
+    def get_total_time(self):
+        return self.__packetArray[-1].getTime() if self.__packetArray else 0
+
     def getHistogram(self, direction=None, normalize=False):
         if direction == Packet.UP:
             histogram = dict(self.__histogramUp)

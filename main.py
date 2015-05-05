@@ -241,6 +241,8 @@ def run():
 
         classifier = int_to_classifier(config.CLASSIFIER)
         countermeasure = int_to_countermeasure(config.COUNTERMEASURE)
+        classifier_name = classifier.__name__ if classifier else 'None'
+        countermeasure_name = countermeasure.__name__ if countermeasure else 'None'
         if issubclass(countermeasure, CounterMeasure):
             countermeasure = countermeasure()  # also instantiating
             new_style_cm = True
@@ -266,6 +268,8 @@ def run():
 
         actual_bandwidth = 0
         modified_bandwidth = 0
+        actual_timing = 0
+        modified_timing = 0
 
         for page_id in webpage_ids:
             print('.', end='')
@@ -303,6 +307,9 @@ def run():
             # Applying Countermeasure (and feeding data to classifier)
             for i, w in enumerate([webpage_train, webpage_test]):
                 for trace in w.getTraces():
+                    actual_timing += trace.get_total_time()
+                    # print(trace.get_total_time(), '-', end='')
+
                     if countermeasure:
                         if new_style_cm:
                             modified_trace = countermeasure.apply_to_trace(trace)
@@ -319,6 +326,8 @@ def run():
 
                     # Overhead Accounting
                     modified_bandwidth += modified_trace.getBandwidth()
+                    modified_timing += modified_trace.get_total_time()
+                    # print(modified_trace.get_total_time())
 
                     instance = classifier.traceToInstance(modified_trace)
                     if instance:
@@ -334,8 +343,10 @@ def run():
         run_end_time = time.time()
 
         # Write Output
-        overhead = '{}/{}'.format(modified_bandwidth, actual_bandwidth)
-        overhead_ratio = ((modified_bandwidth * 1.0 / actual_bandwidth) - 1) * 100
+        calc_overhead = lambda n, o: ('{}/{}'.format(n, o), ((n * 1.0 / o) - 1) * 100)
+
+        overhead, overhead_ratio = calc_overhead(modified_bandwidth, actual_bandwidth)
+        overhead_t, overhead_ratio_t = calc_overhead(modified_timing, actual_timing)
         run_total_time = run_end_time - run_start_time
         classification_total_time = run_end_time - classification_start_time
         output = [accuracy, overhead, '%.2f' % run_total_time, '%.2f' % classification_total_time]
@@ -359,7 +370,10 @@ def run():
         # Show A Brief Report To User
         info('sites detected correctly:\t{}'.format(', '.join(sites_detected)))
         info('sites detected incorrectly:\t{}'.format(', '.join(sites_not_detected)))
-        info('summary: {}%, {} bytes ({:.1f}%), {:.1f}s'.format(accuracy, overhead, overhead_ratio, run_total_time))
+        info('Run summary: ({}, {})'.format(classifier_name, countermeasure_name))
+        info('\taccuracy:\t{}%'.format(accuracy))
+        info('\toverhead:\t{} bytes ({:.1f}%), {} ms ({:.1f}%)'.format(overhead, overhead_ratio, overhead_t, overhead_ratio_t))
+        info('\tduration:\t{:.1f}s'.format(run_total_time))
 
     return 0
 
