@@ -47,3 +47,7 @@ class CounterMeasure(object):
         if t2 is None:
             t2 = self.new_trace
         return t2
+
+    @classmethod
+    def initialize(cls):
+        pass

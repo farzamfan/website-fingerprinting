@@ -283,6 +283,35 @@ VNG_CLASSIFIER           = 14
 VNG_PLUS_PLUS_CLASSIFIER = 15
 
 
+# Data Clustering
+website_clusters = {}  # mapping of website-id to cluster number
+cluster_distances = [
+    [],
+    [2, 9, 10, 5, 3, 8, 7, 4, 6],   # 1
+    [10, 2, 9, 5, 7, 4, 6, 3, 8],   # 2
+    [8, 5, 9, 2, 3, 10, 7, 4, 6],   # 3
+    [7, 6, 10, 3, 2, 9, 5, 4, 8],   # 4
+    [4, 8, 9, 2, 3, 10, 7, 5, 6],   # 5
+    [5, 7, 10, 3, 2, 9, 6, 4, 8],   # 6
+    [5, 7, 10, 3, 2, 9, 6, 4, 8],   # 7
+    [4, 6, 9, 2, 3, 10, 8, 5, 7],   # 8
+    [2, 3, 10, 6, 4, 9, 8, 5, 7],   # 9
+    [3, 2, 10, 6, 8, 5, 7, 4, 9],   # 10
+]
+
+
+def load_website_clusters():
+    global website_clusters
+
+    for l in open(os.path.join(BASE_DIR, 'data', 'website_clusters.txt')):
+        l = l.strip()
+        if not l:
+            continue
+        wid, clus = l.split()
+        website_clusters[wid] = int(clus)
+
+
+# Config Test
 def sanity():
     if not os.path.exists(WEKA_JAR):
         print 'Weka does not exist in path: '+str(WEKA_JAR)

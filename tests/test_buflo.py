@@ -2,12 +2,12 @@
 import unittest
 
 from Folklore import Folklore
-from Packet import Packet
 from Trace import Trace
 from tamaraw import Tamaraw
+from tests.traffic_test import TrafficTest
 
 
-class BufloTest(unittest.TestCase):
+class BufloTest(TrafficTest):
     TRACE_1 = [
         [0, 10, 100],   # u1
         [1, 20, 70],    # d1
@@ -27,9 +27,6 @@ class BufloTest(unittest.TestCase):
         [0, 25, 200],   # u2
         [1, 30, 1500],  # d2
     ]
-
-    def assertTraceEqual(self, trace2, trace1):
-        self.assertListEqual(map(Packet.get_details, trace2.getPackets()), trace1)
 
     def test_send_1(self):
         t1 = Trace.create_from_array(1, self.TRACE_1)

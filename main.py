@@ -224,6 +224,35 @@ def run():
         print('\tless than or equal to the total number of data in data-set.')
         sys.exit(4)
 
+    # Selecting Algorithms
+    classifier = int_to_classifier(config.CLASSIFIER)
+    countermeasure = int_to_countermeasure(config.COUNTERMEASURE)
+    classifier_name = classifier.__name__ if classifier else 'None'
+    countermeasure_name = countermeasure.__name__ if countermeasure else 'None'
+    if issubclass(countermeasure, CounterMeasure):
+        countermeasure.initialize()
+        countermeasure = countermeasure()  # also instantiating
+        new_style_cm = True
+    else:
+        new_style_cm = False
+    countermeasure_params = countermeasure_params.split(',')
+    for p in countermeasure_params:
+        if not p or not p.strip():
+            continue
+        try:
+            attr, val = p.strip().split('=', 1)
+        except ValueError:
+            error('Invalid parameter:', p)
+            return 3
+        try:
+            val = int(val)
+        except ValueError:
+            pass
+        if new_style_cm:
+            countermeasure.set_param(attr, val)
+        else:
+            setattr(countermeasure, attr, val)
+
     # Run
     for run_index in range(config.NUM_TRIALS):
         run_start_time = time.time()
@@ -238,33 +267,6 @@ def run():
         training_set = []
         testing_set = []
         target_webpage = None
-
-        classifier = int_to_classifier(config.CLASSIFIER)
-        countermeasure = int_to_countermeasure(config.COUNTERMEASURE)
-        classifier_name = classifier.__name__ if classifier else 'None'
-        countermeasure_name = countermeasure.__name__ if countermeasure else 'None'
-        if issubclass(countermeasure, CounterMeasure):
-            countermeasure = countermeasure()  # also instantiating
-            new_style_cm = True
-        else:
-            new_style_cm = False
-        countermeasure_params = countermeasure_params.split(',')
-        for p in countermeasure_params:
-            if not p or not p.strip():
-                continue
-            try:
-                attr, val = p.strip().split('=', 1)
-            except ValueError:
-                error('Invalid parameter:', p)
-                return 3
-            try:
-                val = int(val)
-            except ValueError:
-                pass
-            if new_style_cm:
-                countermeasure.set_param(attr, val)
-            else:
-                setattr(countermeasure, attr, val)
 
         actual_bandwidth = 0
         modified_bandwidth = 0
