@@ -7,7 +7,7 @@
 """
 
 
-class Packet:
+class Packet(object):
     UP = 0
     DOWN = 1
 
@@ -44,6 +44,14 @@ class Packet:
 
     def getTime(self):
         return self.__time
+
+    @property
+    def time(self):
+        return self.__time
+
+    @time.setter
+    def time(self, value):
+        self.__time = value
 
     def setLength(self, length):
         self.__length = int(length)

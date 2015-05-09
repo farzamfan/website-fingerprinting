@@ -34,11 +34,15 @@ class CounterMeasure(object):
         self.new_trace = Trace(self.trace.getId())
 
     def add_packet(self, packet):
+        # print packet.get_details()
         t = packet.getTime()
         ind = len(self.new_trace.packets)
         while 0 < ind and t < self.new_trace.packets[ind - 1].getTime():
             ind -= 1
         self.new_trace.add_packet(packet, index=ind)
+
+    def get_new_trace_time(self):
+        return self.new_trace.packets[-1].time if self.new_trace.packets else 0
 
     def apply_to_trace(self, trace):
         self.trace = trace
