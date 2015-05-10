@@ -78,6 +78,7 @@ MorphingAlgo <- function(a,b,d)
         
         else if (abs(a[i]) > abs(b[l]))
         {
+            org <- j
             o[j] <- a[i]
             #SDI_NoM <-  (( ( sum(b[1:l] %in% o[1:j] ) ) ) / (length(b[1:l])+length(o[1:j]) ) )
             SDI_NoM <-  ( length(intersect(b[1:l],o[1:j])) / length(union(b[1:l],o[1:j])) )
@@ -126,7 +127,7 @@ MorphingAlgo <- function(a,b,d)
             if (SDI_WiM < SDI_NoM )
             {
                 print("final comparison")
-                j<-i
+                j<-org
                 #l<-i
                 o[j] <- a[i]
                 j <- j+1
