@@ -110,6 +110,38 @@ class SmartMorphingTest(TrafficTest):
         ]
         self.run_trace_morph_test(src, dst, exp, D=4, TIMING_METHOD='DST', DEFAULT_PAUSE=2)
 
+    def test_long_dst_overhead_check(self):
+        """ If the dst is much longer, src is morphed util a threshold of similarity with dst is reached
+        """
+        src = [
+            [0, 70, 300],
+            [0, 72, 100],
+            [0, 80, 200],
+        ]
+        dst = [
+            [0, 68, 200],
+            [0, 73, 250],
+            [0, 76, 300],
+            [0, 77, 400],
+            [0, 81, 300],
+            [0, 82, 700],
+            [0, 83, 40],
+            [0, 84, 50],
+            [0, 85, 60],
+        ]
+        expected_trace = [
+            (0, 70, 200),       # 1, ok
+            (0, 73, 250),       # 1, ok
+            (0, 76, 300),       # 2, ok
+            (0, 80, 400),       # 3, ok
+            (0, 81, 300),       # -, ok
+            (0, 82, 700),       # -, OV-reached
+            (0, 83, 40),        # -, OV-ok   (JC=.62)
+            (0, 84, 50),        # -, OV-ok   (JC=.75)
+                                #    OV-drop (JC=.88)
+        ]
+        self.run_trace_morph_test(src, dst, expected_trace, D=6, TIMING_METHOD='DST', MIN_JACCARD_SIMILARITY=0.8)
+
 
 if __name__ == '__main__':
     unittest.main()

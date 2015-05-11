@@ -53,6 +53,10 @@ class Packet(object):
     def time(self, value):
         self.__time = value
 
+    @property
+    def size(self):
+        return self.__length
+
     def setLength(self, length):
         self.__length = int(length)
 
