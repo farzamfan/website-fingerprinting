@@ -1,4 +1,4 @@
-MorphingAlgo <- function(a,b,d)
+MorphingAlgo <- function(a,b,d,treshold)
 {
     res <- data.frame(matrix(ncol=6))
     colnames(res) <- c("i","j","l","SDI_NoM","gbw","SDI_WiM")
@@ -128,6 +128,29 @@ MorphingAlgo <- function(a,b,d)
             print(o)
         }
         i <- i+1
+        #
+        if (is.na(a[i]))
+        {
+            print("enter a is finished")
+            while (l <= length(b))
+            {
+                if( ( length(intersect(b[1:l],o[1:j])) / length(union(b[1:l],o[1:j])) ) > as.numeric(treshold))
+                {
+                    print("reached min similarity")
+                    o[j] <- NA
+                    o[j+1] <- NA
+                    break;
+                    
+                }
+                print("a is finished")
+                o[j] <- b[l]
+                print(o)
+                l <- l+1
+                j <- j+1
+            }
+        }
+        o[j] <- NA
+        o[j+1] <- NA
     }
     return(o)
 }
