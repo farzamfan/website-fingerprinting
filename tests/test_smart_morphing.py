@@ -171,5 +171,46 @@ class SmartMorphingTest(TrafficTest):
         self.run_trace_morph_test(src, dst, expected_trace, D=4, TIMING_METHOD='DST', alpha=.01)
 
 
+    def test_two_way_traffic(self):
+        """ Testing when the traffic is in both directions
+        """
+        src = [
+            [0, 70, 300],       # 1u
+            [0, 72, 100],       # 2u
+            [1, 75, 400],       # 1d
+            [0, 80, 600],       # 3u
+            [1, 82, 1500],      # 2d
+            [1, 84, 1500],      # 3d
+            [1, 85, 700],       # 4d
+        ]
+        dst = [
+            [0, 68, 200],
+            [1, 70, 500],
+            [0, 73, 250],
+            [0, 76, 300],
+            [0, 77, 400],
+            [1, 78, 1000],
+            [0, 79, 300],
+            [1, 80, 1500],
+            [1, 85, 1500],
+            [1, 87, 500],
+            [1, 88, 300],
+        ]
+        expected_trace = [
+            (0, 70, 200),       # 1u
+            (0, 73, 250),       # 1u
+            (1, 75, 500),       # 1d
+            (0, 76, 300),       # 2u
+            (0, 80, 400),       # 3u
+            (1, 82, 1000),      # 2d
+            (0, 82, 300),       # 3u
+            (1, 84, 1500),      # 2d
+            (1, 85, 1500),      # 3d
+            (1, 87, 500),       # 4d
+            (1, 88, 300),       # 4d
+        ]
+        self.run_trace_morph_test(src, dst, expected_trace, D=4, TIMING_METHOD='DST', alpha=0)
+
+
 if __name__ == '__main__':
     unittest.main()

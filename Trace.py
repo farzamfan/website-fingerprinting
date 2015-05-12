@@ -95,6 +95,13 @@ class Trace:
     def get_total_time(self):
         return self.__packetArray[-1].getTime() if self.__packetArray else 0
 
+    def filter_direction(self, direction):
+        nt = Trace(self.__id)
+        for p in self.packets:
+            if p.getDirection() == direction:
+                nt.addPacket(p)
+        return nt
+
     def getHistogram(self, direction=None, normalize=False):
         if direction == Packet.UP:
             histogram = dict(self.__histogramUp)

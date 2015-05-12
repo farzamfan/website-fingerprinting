@@ -36,6 +36,14 @@ class SmartMorphing(CounterMeasure):
         self.morph_trace(self.trace, self.dst_trace)
 
     def morph_trace(self, src_trace, dst_trace):
+        trace_up = self.morph_trace_one_way(src_trace.filter_direction(Packet.UP),
+                                            dst_trace.filter_direction(Packet.UP))
+        self.morph_trace_one_way(src_trace.filter_direction(Packet.DOWN),
+                                 dst_trace.filter_direction(Packet.DOWN))
+        for p in trace_up.packets:  # trace_down is already in self.new_trace
+            self.add_packet(p)
+
+    def morph_trace_one_way(self, src_trace, dst_trace):
         self.build_new_trace()
         dst_n = len(dst_trace.packets)
         src_n = len(src_trace.packets)
@@ -158,6 +166,8 @@ class SmartMorphing(CounterMeasure):
                     break
             dd, dt, dl = pop_dst_packet()
             self.add_packet(Packet(dd, dt, dl))
+
+        return self.new_trace
 
     def get_target_cluster(self):
         website_id = 1  # self.trace.getId().?
