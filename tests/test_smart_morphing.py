@@ -59,7 +59,7 @@ class SmartMorphingTest(TrafficTest):
             (0, 80, 400),       # 3, src delay
             (0, 82, 300),       # 3, match dst timing
         ]
-        self.run_trace_morph_test(src, dst, expected_trace, D=4, TIMING_METHOD='DST')
+        self.run_trace_morph_test(src, dst, expected_trace, D=4, TIMING_METHOD='DST', alpha=0)
 
     def test_simple_morphing_min(self):
         # Trying to minimize latency and sending ASAP, using min inter-packet latency for queuing
@@ -82,7 +82,8 @@ class SmartMorphingTest(TrafficTest):
             (0, 80, 400),       # 3,
             (0, 83, 300),       # 3,
         ]
-        self.run_trace_morph_test(src, dst, expected_trace, D=4, TIMING_METHOD='MIN', DEFAULT_PAUSE=2)
+        self.run_trace_morph_test(src, dst, expected_trace, D=4, TIMING_METHOD='MIN', DEFAULT_PAUSE=2,
+                                  alpha=0)
 
     def test_small_dst_trace(self):
         # If there are fewer packets in dst trace than src trace, the dst trace is copied
@@ -108,7 +109,7 @@ class SmartMorphingTest(TrafficTest):
             (0, 80, 300),   # 5,
             (0, 82, 200),   # 6,
         ]
-        self.run_trace_morph_test(src, dst, exp, D=4, TIMING_METHOD='DST', DEFAULT_PAUSE=2)
+        self.run_trace_morph_test(src, dst, exp, D=4, TIMING_METHOD='DST', DEFAULT_PAUSE=2, alpha=0)
 
     def test_long_dst_overhead_check(self):
         """ If the dst is much longer, src is morphed util a threshold of similarity with dst is reached
@@ -140,7 +141,34 @@ class SmartMorphingTest(TrafficTest):
             (0, 84, 50),        # -, OV-ok   (JC=.75)
                                 #    OV-drop (JC=.88)
         ]
-        self.run_trace_morph_test(src, dst, expected_trace, D=6, TIMING_METHOD='DST', MIN_JACCARD_SIMILARITY=0.8)
+        self.run_trace_morph_test(src, dst, expected_trace, D=6, TIMING_METHOD='DST',
+                                  MIN_JACCARD_SIMILARITY=0.8, alpha=0)
+
+    def test_breaking_condition(self):
+        """ When breaking a packet, it may be mapped to dst packets or inserted directly
+        """
+        src = [
+            [0, 70, 300],
+            [0, 71, 310],
+            [0, 72, 1000],
+            [0, 73, 1000],
+        ]
+        dst = [
+            [0, 80, 200],
+            [0, 81, 150],
+            [0, 82, 300],
+            [0, 83, 1500],
+            [0, 84, 1500],
+        ]
+        expected_trace = [
+            (0, 80, 200),       # 1
+            (0, 81, 150),       # 1, morph
+            (0, 82, 300),       # 2
+            (0, 83, 10),        # 2, keep
+            (0, 83, 1500),      # 3         # TODO: add DEFAULT_PAUSE
+            (0, 84, 1500),      # 4         # TODO: fix rotate mode
+        ]
+        self.run_trace_morph_test(src, dst, expected_trace, D=4, TIMING_METHOD='DST', alpha=.01)
 
 
 if __name__ == '__main__':
