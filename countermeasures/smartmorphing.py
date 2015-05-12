@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import copy
 
+import MySQLdb as mdb
+
+from Datastore import Datastore
 from Packet import Packet
-from config import website_clusters, cluster_distances, load_website_clusters
+from config import website_clusters, cluster_distances, load_website_clusters, MYSQL_USER, MYSQL_PASSWD
 from countermeasure import CounterMeasure
 
 
@@ -25,6 +28,8 @@ class SmartMorphing(CounterMeasure):
         self.D = self.D2 = 0
         self.update_params()
         self.dst_trace = None
+        self.conn = mdb.connect('localhost', MYSQL_USER, MYSQL_PASSWD, 'Harrmann')
+        self.cur = None
 
     def update_params(self):
         self.D = self.params['D']
@@ -32,7 +37,21 @@ class SmartMorphing(CounterMeasure):
 
     def apply(self):
         if self.dst_trace is None:
-            pass  # TODO: select from clustering and database information
+            if self.cur is None:
+                self.cur = self.conn.cursor()
+            alg = self.params['CLUSTERING_ALGORITHM']
+            print('WEBPAGE', int(self.trace.webpage))
+            self.cur.execute('SELECT MBC9, PAM10, SOM10 FROM ClustTable WHERE site_id=%s', [int(self.trace.webpage)])
+            src_clust = int(round(self.cur.fetchone()[{'MBC9':0,'PAM10':1,'SOM10':2}[alg]], 0))
+            print('SRC-CLUST', src_clust)
+            dst_clust = cluster_distances[src_clust][self.D - 1]
+            print('DST-CLUST', dst_clust)
+            self.cur.execute('SELECT site_id FROM ClustTable WHERE {}=%s ORDER BY RAND() LIMIT 1'.format(alg), (dst_clust,))
+            selected_site_id = int(round(self.cur.fetchone()[0], 0))
+            print('SELECTED-SITE', selected_site_id)
+            sample_trace = Datastore.getTraceHerrmann(selected_site_id, 1)
+            print sample_trace
+            self.ds_trace = sample_trace
         self.morph_trace(self.trace, self.dst_trace)
 
     def morph_trace(self, src_trace, dst_trace):

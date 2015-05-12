@@ -9,8 +9,15 @@ class Webpage:
         self.__id = int(id)
         self.__traceSet = []
 
+    def __unicode__(self):
+        return u'WebPage#{} ({} traces)'.format(self.__id, len(self.__traceSet))
+
+    def __str__(self):
+        return unicode(self)
+
     def addTrace( self, trace ):
-        self.__traceSet.append( trace )
+        self.__traceSet.append(trace)
+        trace.webpage = self.__id
 
     def getTrace( self, n ):
         return self.__traceSet[n]

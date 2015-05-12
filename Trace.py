@@ -25,6 +25,19 @@ class Trace:
         self.__month = 0
         self.__day = 0
         self.__hour = 0
+        self.webpage = None
+
+    def __unicode__(self):
+        return u'Trace#{} ({} packets, site: {}, +{}/-{})'.format(
+            self.__id,
+            len(self.__packetArray),
+            self.webpage,
+            self.getBandwidth(Packet.UP),
+            self.getBandwidth(Packet.DOWN),
+        )
+
+    def __str__(self):
+        return unicode(self)
 
     def getId(self):
         return self.__id

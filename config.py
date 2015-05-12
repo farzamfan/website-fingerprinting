@@ -253,6 +253,7 @@ def get_available_countermeasures():
     from WrightStyleMorphing import WrightStyleMorphing
     from Folklore import Folklore
     from tamaraw import Tamaraw
+    from smartmorphing import SmartMorphing
 
     return [
         None,
@@ -267,6 +268,7 @@ def get_available_countermeasures():
         WrightStyleMorphing,
         Folklore,
         Tamaraw,
+        SmartMorphing,
     ]
 
 

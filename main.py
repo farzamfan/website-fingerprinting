@@ -111,6 +111,7 @@ def usage():
         9: Traffic Morphing
         10: BuFLO
         11: Tamaraw
+        12: SmartMorphing
 
     -n [int]: number of trials to run per experiment (default 1)
 
@@ -263,6 +264,7 @@ def run():
         random.shuffle(webpage_ids)
         webpage_ids = webpage_ids[0:config.BUCKET_SIZE]
         seed = random.randint(start_index, end_index)
+        info('selected webpages:', webpage_ids)
 
         training_set = []
         testing_set = []
@@ -293,6 +295,7 @@ def run():
             webpage_test = webpage_test[0]
             if target_webpage is None:
                 target_webpage = webpage_train
+            print(webpage_test, webpage_train)
 
             # Accounting
             actual_bandwidth += webpage_train.getBandwidth()
