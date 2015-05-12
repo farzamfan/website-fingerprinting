@@ -25,8 +25,8 @@ OUTPUT_DIR         = './output'
 #Specify options for Herrmann MySQL database
 MYSQL_HOST = 'localhost'
 MYSQL_DB = 'fingerprints'
-MYSQL_USER = 'fingerprints'
-MYSQL_PASSWD = 'fingerprints'
+MYSQL_USER = 'root'
+MYSQL_PASSWD = '___'
 
 sys.path.append(COUNTERMEASURE_DIR)
 sys.path.append(CLASSIFIERS_DIR)

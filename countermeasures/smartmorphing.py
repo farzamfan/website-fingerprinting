@@ -51,7 +51,7 @@ class SmartMorphing(CounterMeasure):
             print('SELECTED-SITE', selected_site_id)
             sample_trace = Datastore.getTraceHerrmann(selected_site_id, 1)
             print sample_trace
-            self.ds_trace = sample_trace
+            self.dst_trace = sample_trace
         self.morph_trace(self.trace, self.dst_trace)
 
     def morph_trace(self, src_trace, dst_trace):
@@ -137,6 +137,12 @@ class SmartMorphing(CounterMeasure):
             m = jc + ovp / (100.0 * self.D)
             ms = '{0:.4f}'.format(m)
             print head['src-size'], self.get_new_trace_size(), jcs, ovps, ms
+
+        if dst_n == 0:
+            print('[WARN] empty dst trace, skipping morphing.')
+            for p in src_trace.packets:
+                self.add_packet(p)
+            return self.new_trace
 
         while not head['src-ended']:
             print_overhead_report()
