@@ -13,7 +13,7 @@ from Packet import Packet
 
 
 class Trace:
-    def __init__(self, id):
+    def __init__(self, id, webpage=None):
         self.__packetArray = []
         self.__id = id
         self.__histogramUp = {}
@@ -25,7 +25,7 @@ class Trace:
         self.__month = 0
         self.__day = 0
         self.__hour = 0
-        self.webpage = None
+        self.webpage = webpage
 
     def __unicode__(self):
         return u'Trace#{} ({} packets, site: {}, +{}/-{})'.format(

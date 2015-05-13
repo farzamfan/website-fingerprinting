@@ -49,7 +49,7 @@ class SmartMorphing(CounterMeasure):
             self.cur.execute('SELECT site_id FROM ClustTable WHERE {}=%s ORDER BY RAND() LIMIT 1'.format(alg), (dst_clust,))
             selected_site_id = int(round(self.cur.fetchone()[0], 0))
             print('SELECTED-SITE', selected_site_id)
-            sample_trace = Datastore.getTraceHerrmann(selected_site_id, 1)
+            sample_trace = Datastore.get_trace(site_id=selected_site_id)
             print sample_trace
             self.dst_trace = sample_trace
         self.morph_trace(self.trace, self.dst_trace)
@@ -145,7 +145,7 @@ class SmartMorphing(CounterMeasure):
             return self.new_trace
 
         while not head['src-ended']:
-            print_overhead_report()
+            # print_overhead_report()
             sd, st, sl = pop_src_packet()
             dd, dt, dl = pop_dst_packet()
             if self.params['TIMING_METHOD'] == 'DST':
@@ -175,7 +175,7 @@ class SmartMorphing(CounterMeasure):
                         delta = dl - remaining
                         morph_metric_ov = (a/b) - ((a+1) / (b+1)) + (self.params['alpha'] * delta / self.D)
                         keep_metric_ov = (a/b) - (a / (b + 2))
-                        print '{}/{}'.format(dl, remaining), '+-', morph_metric_ov, keep_metric_ov
+                        # print '{}/{}'.format(dl, remaining), '+-', morph_metric_ov, keep_metric_ov
                         use_dst_packet = morph_metric_ov <= keep_metric_ov
                         if not use_dst_packet:
                             dl = remaining
@@ -185,7 +185,7 @@ class SmartMorphing(CounterMeasure):
                     remaining -= dl
 
         while not head['dst-ended']:
-            print_overhead_report()
+            # print_overhead_report()
             if size_overhead_reached():  # we only break if we have *passed* the overhead threshold
                 if get_jaccard_similarity() >= self.params['MIN_JACCARD_SIMILARITY']:
                     break

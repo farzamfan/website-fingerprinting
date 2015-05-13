@@ -18,6 +18,8 @@ ENABLE_CACHE = False
 import cPickle
 
 class Datastore:
+    conn = None
+
     @staticmethod
     def getWebpagesLL( webpageIds, traceIndexStart, traceIndexEnd ):
         webpages = []
@@ -117,4 +119,32 @@ class Datastore:
 
             mc.set(key,cPickle.dumps(trace,protocol=cPickle.HIGHEST_PROTOCOL))
 
+        return trace
+
+    @classmethod
+    def get_trace(cls, trace_id=None, site_id=None, dataset=2):
+        if cls.conn is None:
+            cls.conn = MySQLdb.connect(host=config.MYSQL_HOST,
+                                       user=config.MYSQL_USER,
+                                       passwd=config.MYSQL_PASSWD,
+                                       db=config.MYSQL_DB)
+        cur = cls.conn.cursor()
+        if trace_id is None:
+            cur.execute('SELECT id FROM traces where site_id=%s ORDER BY RAND() LIMIT 1', [site_id])
+            trace_id = cur.fetchone()[0]
+            print('SEL-TRACE', trace_id)
+
+        cur.execute('SELECT size, ROUND(abstime*1000) FROM packets WHERE trace_id=%s ORDER BY abstime',
+                    [trace_id])
+        data = cur.fetchall()
+        trace = Trace(trace_id, webpage=site_id)
+        for item in data:
+            direction = Packet.UP
+            if int(item[0]) > 0:
+                direction = Packet.DOWN
+            time = item[1]
+            length = int(math.fabs(item[0]))
+            trace.addPacket(Packet(direction, time, length))
+
+        # mc.set(key, cPickle.dumps(trace, protocol=cPickle.HIGHEST_PROTOCOL))
         return trace
